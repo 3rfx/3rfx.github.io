@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>! 3rfx | Community Manager & PvP Tierlist Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+        :root {
+            --accent-1: #6366f1;
+            --accent-2: #22d3ee;
+            --accent-3: #a855f7;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #05070a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            box-shadow: 0 0 14px rgba(99, 102, 241, 0.75);
+            z-index: 50;
+            transition: width 0.08s linear;
+        }
+
+        .glow-cursor {
+            pointer-events: none;
+            position: fixed;
+            width: 540px;
+            height: 540px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(34, 211, 238, 0.04) 40%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            transition: opacity 0.25s ease;
+        }
+
+        @keyframes orbMoveSlow {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-35px, 28px) scale(1.08); }
+        }
+
+        @keyframes orbMoveAlt {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -25px) scale(1.06); }
+        }
+
+        .orb-a { animation: orbMoveSlow 11s ease-in-out infinite; }
+        .orb-b { animation: orbMoveAlt 13s ease-in-out infinite; }
+
+        @keyframes skinFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-7px); }
+        }
+
+        .skin-float { animation: skinFloat 3.6s ease-in-out infinite; }
+
+        .skin-box:hover .skin-float {
+            animation-play-state: paused;
+            transform: translateY(-6px) scale(1.06) rotate(-1.5deg);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero-title {
+            background: linear-gradient(120deg, #ffffff 15%, #a5b4fc 45%, #67e8f9 75%, #ffffff 95%);
+            background-size: 220% 220%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 7s ease infinite;
+        }
+
+        .glass-card {
+            background: rgba(13, 18, 30, 0.68);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease, background-color 0.28s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(129, 140, 248, 0.45);
+            box-shadow: 0 12px 40px -10px rgba(99, 102, 241, 0.22);
+        }
+
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(650px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.13), rgba(34, 211, 238, 0.04) 35%, transparent 55%);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
+        }
+
+        .spotlight-card:hover::before { opacity: 1; }
+
+        .server-row {
+            transition: transform 0.2s ease, background-color 0.2s ease, padding-left 0.2s ease;
+        }
+
+        @media (min-width: 640px) {
+            .server-row:hover {
+                background-color: rgba(255, 255, 255, 0.035);
+                padding-left: 1.5rem;
+            }
+        }
+
+        .server-row:hover .member-pill {
+            transform: scale(1.05);
+            border-color: rgba(34, 211, 238, 0.45);
+            box-shadow: 0 0 14px rgba(34, 211, 238, 0.18);
+        }
+
+        .member-pill {
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .role-tester {
+            background-color: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.28);
+            color: #c084fc;
+        }
+
+        .role-staff {
+            background-color: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.28);
+            color: #60a5fa;
+        }
+
+        .copy-btn {
+            transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.35);
+        }
+
+        .copy-btn:active { transform: scale(0.96); }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            transition-delay: var(--delay, 0ms);
+        }
+
+        .reveal.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .reveal {
+                opacity: 1;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body class="relative min-h-screen selection:bg-indigo-500 selection:text-white">
+    <div id="scroll-progress"></div>
+    <div class="glow-cursor hidden sm:block" id="glow"></div>
+
+    <div class="fixed inset-0 bg-[linear-gradient(to_right,#1e293b14_1px,transparent_1px),linear-gradient(to_bottom,#1e293b14_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] pointer-events-none"></div>
+    <div class="fixed -top-24 -right-24 w-72 sm:w-96 h-72 sm:h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none orb-a"></div>
+    <div class="fixed bottom-10 -left-24 w-72 sm:w-96 h-72 sm:h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none orb-b"></div>
+
+    <div class="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-14 space-y-6 sm:space-y-8">
+        <header class="reveal glass-card spotlight-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-11 flex flex-col md:flex-row items-center gap-6 sm:gap-8 justify-between relative">
+            <div class="space-y-4 text-center md:text-left z-10 w-full md:w-auto">
+                <div class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-[11px] sm:text-xs font-semibold tracking-wider uppercase shadow-[0_0_20px_rgba(99,102,241,0.12)]">
+                    <span class="relative flex h-2 w-2 shrink-0">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                    </span>
+                    Community Manager & PvP Tierlist Tester
+                </div>
+
+                <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight pb-1">! 3rfx</h1>
+
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-2.5 sm:gap-3 pt-2">
+                    <button type="button" onclick="copyValue('.3rfx', this)" class="copy-btn px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800/95 border border-slate-700/70 hover:border-indigo-400/50 text-xs sm:text-sm font-medium text-indigo-300 cursor-pointer flex items-center gap-2">
+                        Discord: <span class="text-white font-mono">.3rfx</span>
+                        <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-md font-mono transition-all">Copy</span>
+                    </button>
+                    <button type="button" onclick="copyValue('3rfx', this)" class="copy-btn px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800/95 border border-slate-700/70 hover:border-emerald-400/50 text-xs sm:text-sm font-medium text-emerald-400 cursor-pointer flex items-center gap-2">
+                        Minecraft: <span class="text-white font-mono">3rfx</span>
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-md font-mono transition-all">Copy</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="skin-box relative group z-10 shrink-0">
+                <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/25 via-cyan-400/15 to-purple-500/25 rounded-2xl blur-xl group-hover:blur-2xl group-hover:opacity-100 opacity-75 transition-all duration-300"></div>
+                <div class="relative glass-card px-6 sm:px-7 py-4 sm:py-5 rounded-2xl flex flex-col items-center justify-center border border-indigo-500/30 group-hover:border-indigo-400/60">
+                    <div class="w-24 sm:w-28 h-36 sm:h-44 flex items-center justify-center">
+                        <img src="https://mc-heads.net/body/3rfx/120" alt="3rfx Skin" class="skin-float max-h-full w-auto drop-shadow-[0_14px_20px_rgba(0,0,0,0.75)] transition-transform duration-300">
+                    </div>
+                    <span class="mt-2.5 sm:mt-3 text-xs font-mono text-indigo-300 tracking-widest uppercase">IGN: 3rfx</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="reveal glass-card spotlight-card rounded-2xl sm:rounded-3xl p-4 sm:p-7 lg:p-10 space-y-4 w-full">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-4">
+                <div>
+                    <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-white">Server Experience & Roles</h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-0.5">Verified communities and competitive tierlists</p>
+                </div>
+                <span class="text-[11px] sm:text-xs font-mono px-3 py-1 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700/50">Track Record</span>
+            </div>
+
+            <div id="servers-list" class="divide-y divide-slate-800/50"></div>
+        </section>
+
+        <section class="reveal glass-card spotlight-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 space-y-3">
+            <div class="flex items-center gap-2 text-indigo-400 text-xs font-mono uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                About Me
+            </div>
+            <p class="text-slate-300 text-sm sm:text-base lg:text-lg leading-relaxed">
+                Hey, I'm 3rfx. I genuinely enjoy helping people out and making sure they have a good experience, which is what I try to do in every server I staff. I always treat members with respect and keep things professional, while also making sure chat stays clean and anyone spamming or breaking rules gets dealt with properly.
+            </p>
+        </section>
+
+        <div class="reveal glass-card spotlight-card p-5 sm:p-6 rounded-2xl text-center border-dashed border-slate-800">
+            <p class="text-slate-400 italic text-xs sm:text-sm">
+                "Good moderation isn't about flexing permissions—it's about keeping the community active, fair, and drama-free so owners can focus on growth."
+            </p>
+            <span class="block mt-2 text-xs font-mono text-indigo-400">— ! 3rfx (.3rfx)</span>
+        </div>
+    </div>
+
+    <script>
+        const serverHistory = [
+            { members: '20,000', name: 'PvPTiers (Pot PvP Community)', role: 'Helper', kind: 'staff' },
+            { members: '20,000', name: 'Solitary Tierlist', role: 'Tester', kind: 'tester' },
+            { members: '22,000', name: 'Lucnoxity Tierlist', role: 'Admin & Tester', kind: 'tester' },
+            { members: '9,200', name: 'Spear Mace Novatiers', role: 'Helper', kind: 'staff' },
+            { members: '8,000', name: 'Meta Tierlist', role: 'Tester', kind: 'tester' },
+            { members: '5,000', name: 'Lucsmp', role: 'Trainee', kind: 'staff' },
+            { members: '2,500', name: 'Stat Tierlist', role: 'Tester & Mod', kind: 'tester' },
+            { members: '1,700', name: 'Hole PvP Community', role: 'Helper', kind: 'staff' },
+            { members: '1,500', name: 'Vanilla PvP Community Novatiers', role: 'Mod & Tester', kind: 'tester' },
+            { members: '1,000', name: 'Coin Flip Tierlist', role: 'Tester', kind: 'tester' },
+            { members: '800', name: 'European Tiers', role: 'Sr. Mod', kind: 'staff' },
+            { members: '600', name: 'Iron Vanilla Community', role: 'Mod & Tester', kind: 'tester' },
+            { members: '100', name: 'Ascend Stray Clan', role: 'Head Admin', kind: 'staff' },
+            { members: '100', name: 'Egyptian Tierlist', role: 'Regulator', kind: 'staff' }
+        ];
+
+        const serversContainer = document.getElementById('servers-list');
+        if (serversContainer) {
+            serversContainer.innerHTML = serverHistory.map((item, idx) => {
+                const badgeClass = item.kind === 'tester' ? 'role-tester' : 'role-staff';
+                const delay = (idx + 1) * 20;
+                return `
+                    <div class="server-row reveal py-3 sm:py-4 flex items-center justify-between gap-2.5 sm:gap-4 px-2 sm:px-4 rounded-xl" style="--delay: ${delay}ms">
+                        <div class="flex items-center gap-2.5 sm:gap-5 min-w-0 flex-1">
+                            <span class="member-pill w-14 sm:w-20 text-center py-1 sm:py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-mono text-[11px] sm:text-sm font-bold shrink-0">${item.members}</span>
+                            <span class="font-semibold text-slate-200 text-xs sm:text-base lg:text-lg truncate sm:whitespace-normal">${item.name}</span>
+                        </div>
+                        <span class="${badgeClass} px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-sm font-semibold shrink-0">${item.role}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        const glowEl = document.getElementById('glow');
+        if (glowEl) {
+            window.addEventListener('mousemove', (ev) => {
+                glowEl.style.left = `${ev.clientX}px`;
+                glowEl.style.top = `${ev.clientY}px`;
+            }, { passive: true });
+        }
+
+        document.querySelectorAll('.spotlight-card').forEach((card) => {
+            card.addEventListener('mousemove', (ev) => {
+                const box = card.getBoundingClientRect();
+                card.style.setProperty('--mouse-x', `${ev.clientX - box.left}px`);
+                card.style.setProperty('--mouse-y', `${ev.clientY - box.top}px`);
+            }, { passive: true });
+        });
+
+        const bar = document.getElementById('scroll-progress');
+        const syncProgress = () => {
+            const top = window.scrollY || document.documentElement.scrollTop;
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = maxScroll > 0 ? Math.min(100, Math.max(0, (top / maxScroll) * 100)) : 0;
+            if (bar) bar.style.width = `${pct}%`;
+        };
+        window.addEventListener('scroll', syncProgress, { passive: true });
+        syncProgress();
+
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -25px 0px' });
+
+        document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+        function copyValue(val, btn) {
+            navigator.clipboard.writeText(val);
+            const tag = btn.querySelector('span:last-child');
+            if (!tag) return;
+            const prev = tag.innerText;
+            tag.innerText = 'Copied!';
+            tag.classList.add('scale-105');
+            setTimeout(() => {
+                tag.innerText = prev;
+                tag.classList.remove('scale-105');
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
